@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PDF Label Extraction</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        ;
+      }
+      
+      #header {
+        color: black;
+        padding: 70px;
+        text-align: center;
+      }
+      
+      #logo {
+        display: block;
+        margin: 0 auto;
+        width: 250px;
+        height:auto;
+      }
+      #Algorithm {
+        width: 100%;
+        height: auto;
+        display: block;
+        margin-top: 20px;
+        }
+      #content-container {
+        display: flex;
+        max-width: 1200px;
+        margin: 50px auto;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      
+      #content-left {
+        width: 50%;
+        padding: 30px;
+        text-align: center; /* center the content */
+      }
+      
+      #content-right {
+        width: 50%;
+        padding: 30px;
+        text-align: left;
+        background-color: #f7f7f7;
+        }
+
+        #content-right h3 {
+        margin-top: 0;
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        }
+
+        #content-right p {
+        margin-bottom: 15px;
+        font-size: 18px;
+        line-height: 1.5;
+        color: #666;
+        }
+
+        #content-right ul {
+        margin-bottom: 15px;
+        font-size: 18px;
+        line-height: 1.5;
+        color: #666;
+        }
+
+        #content-right ul li {
+        margin-bottom: 5px;
+        list-style-type: disc;
+        list-style-position: inside;
+        }
+
+
+
+      label {
+        display: inline-block;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+      
+      input[type="text"] {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        width: 90%;
+        margin-bottom: 20px;
+      }
+      
+      input[type="submit"] {
+        background-color: red;
+        color: #fff;
+        border: none;
+        padding: 20px 40px;
+        border-radius: 15px;
+        cursor: pointer;
+      }
+      
+      input[type="submit"]:hover {
+        background-color: red;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <div id="content-container">
+      <div id="content-left">
+          <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" id="logo">
+        <form method="post" action="/submit">
+          <label for="folder_path">PDF Folder Path:</label>
+          <br>
+          <input type="text" id="folder_path" name="folder_path" placeholder="Please give the path of pdf folder">
+          <br><br>
+          <label for="label">Labels/Tags:</label>
+          <br>
+          <input type="text" id="label" name="label" placeholder="Please enter the labels/tags you want to search for">
+          <br>
+          <label for="key">Key:</label>
+          <br>
+          <input type="text" id="key" name="key" placeholder="Please enter your unique key">
+          <br>
+          <input type="submit" value="Submit">
+          <br><br>
+        </form>
+      </div>
+      <div id="content-right">
+        <h3>Instructions:</h3>
+        <ul>
+          <span>Step 1:</span> Store all PDF files in one folder on your local computer with a .pdf extension.<br>
+          <span>Step 2:</span> Ensure all files are less than 4MB in size.<br>
+          <span>Step 3:</span> Enter the labels/tags you are interested in from a PDF.<br>
+          <span>Step 4:</span> Enter the unique key provided by the team in an alpha-numeric form.<br>
+        </ul>
+        <img src="{{ url_for('static', filename='Algorithm.png') }}" id="Algorithm">
+      </div>
+    </div>
+  </body>
+</html>

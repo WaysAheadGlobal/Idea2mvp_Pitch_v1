@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Form Recognizer Output</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            background-color:#b3b1b1;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h2 {
+            margin-top: 40px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+            width: 100%;
+        }
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        a.button {
+            background-color: #4caf50;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 20px;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        a.button:hover {
+            background-color: #3e8e41;
+        }
+        img {
+            width:75px; /* change to desired size */
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome</h1>
+    <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" id="logo">
+    <div style="text-align: center;">
+        <h2>Ranked List</h2>
+        <p>Your output file is ready for download:</p>
+        <p>It contains all pitch decks in a ranked format</p>
+        <a class="button" href="ranked_output.xlsx" download>Download Output File</a>
+    </div>
+    <div style="text-align: center;">
+        <h2>Filtered List</h2>
+        <p>Your output file is ready for download:</p>
+        <p>It contains all filtered pitch decks</p>
+        <a class="button" href="filtered_startups.xlsx" download>Download Output File</a>
+    </div>
+    <div style="text-align: center;">
+        <h2>Clustered List</h2>
+        <p>Your output file is ready for download:</p>
+        <p>It contains clustered startups along with cluster statistics</p>
+        <a class="button" href="Clustered.xlsx" download>Download Output File</a>
+    </div>
+</body>
+</html>
+
