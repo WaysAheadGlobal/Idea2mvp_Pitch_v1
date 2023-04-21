@@ -15,7 +15,7 @@ stop_words = set(stopwords.words('english'))
 
 
 # Define a list of keywords to search for
-keywords = ['technology', 'innovation', 'empower', 'women', 'research', 'robotics', 'drone', 'agri', 'deep tech', 'DPIIT', 'IIT', 'IIM', 'alumni', 'ministry', 'global', 'growth', 'seed fund', 'make in India', 'carbon', 'compliance', 'data science', 'data analytics', 'data', 'indian institute of technology', 'indian institute of management', 'skill', 'digital', 'technologies', 'million', 'billion', 'customer experience', 'organic', 'ev', 'energy', 'green energy', 'manufacturing', 'electrical vehicle']
+keywords = ['technology', 'innovation', 'empower', 'women', 'research', 'robotics', 'drone', 'agri', 'deep tech','mechanics', 'DPIIT', 'IIT', 'IIM', 'alumni', 'ministry', 'global', 'growth', 'seed fund', 'make in India', 'carbon', 'compliance', 'data science', 'data analytics', 'data', 'indian institute of technology', 'indian institute of management', 'skill', 'digital', 'technologies', 'million', 'billion', 'customer experience', 'organic', 'ev', 'energy', 'green energy', 'manufacturing', 'electrical vehicle']
 
 
 # Create a Flask app
