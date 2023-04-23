@@ -3,81 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <title>Form Recognizer Output</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
         }
-        h1 {
-            background-color:#b3b1b1;
-            color: #fff;
-            margin: 0;
+        .table-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: stretch;
+        }
+
+        .table-column {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: stretch;
+            width: 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .table-container {
+            position: relative;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width:40%;
+            margin: 20px auto;
+            max-height: 400px;
+            overflow: hidden;
+            background: #f6f6f673;
+            background: linear-gradient(to bottom, #f6f6f648 0%, #ffffff60 100%);
+        }
+
+        .table-wrapper {
+            width: 80%;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
             padding: 20px;
-            text-align: center;
+            overflow-y: scroll;
         }
-        h2 {
-            margin-top: 40px;
-        }
+
         table {
             border-collapse: collapse;
-            margin-top: 20px;
-            width: 100%;
+            width: 90%;
+            margin: 0 auto;
         }
-        table th, table td {
+
+        th, td {
             border: 1px solid #ccc;
-            padding: 10px;
+            padding: 8px;
             text-align: left;
         }
-        table th {
-            background-color: #f0f0f0;
-            font-weight: bold;
+
+        th {
+            background-color: #eee;
         }
-        a.button {
-            background-color: #4caf50;
-            border: none;
-            border-radius: 4px;
-            color: #fff;
-            display: inline-block;
-            font-size: 16px;
-            margin-top: 20px;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-        a.button:hover {
-            background-color: #3e8e41;
-        }
-        img {
-            width:75px; /* change to desired size */
+        .table-content {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        .slider-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 20px;
+        }
+
+        .ui-slider {
+            background-color: #b3b1b157;
+            height: 10px;
+        }
+        
+        .ui-slider-handle {
+            background-color: #fff;
+            border: none;
+            height: 20px;
+            width: 20px;
+        }
+        
+        #logo {
+            display: block;
+            margin: auto;
+            width:20%;
+            }
+        /* Style each table separately */
+        .table1 table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .table2 table,
+        .table3 table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0 auto;
+            table-layout: fixed;
+        }
+
+        .table2 th,
+        .table3 th {
+            background-color: #eee;
+        }
+
+        .table2 th,
+        .table2 td,
+        .table3 th,
+        .table3 td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        .table2 td,
+        .table3 td {
+            width:100%;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome</h1>
-    <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" id="logo">
-    <div style="text-align: center;">
-        <h2>Ranked List</h2>
-        <p>Your output file is ready for download:</p>
-        <p>It contains all pitch decks in a ranked format</p>
-        <a class="button" href="ranked_output.xlsx" download>Download Output File</a>
+        <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" id="logo">
+        <div class="table-row">
+            <div class="table-container table1">
+                <center><h3>Ranked Startups</h3></center>
+                <div class="table-wrapper">
+                    <table>
+                        {{ table_html|safe }}
+                    </table>
+                </div>
+            </div>  
+            <div class="table-column">
+                <div class="table-container table2">
+                    <center><h3>Filtered Startups</h3></center>
+                    <div class="table-wrapper">
+                        <table>
+                            {{ filtered_startups_table|safe }}
+                        </table>
+                    </div>
+                </div> 
+                <div class="table-container table3">
+                    <center><h3>Clustered Startups</h3></center>
+                    <div class="table-wrapper">
+                        <table>
+                            {{ clustered_startups_table|safe }}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div style="text-align: center;">
-        <h2>Filtered List</h2>
-        <p>Your output file is ready for download:</p>
-        <p>It contains all filtered pitch decks</p>
-        <a class="button" href="filtered_startups.xlsx" download>Download Output File</a>
-    </div>
-    <div style="text-align: center;">
-        <h2>Clustered List</h2>
-        <p>Your output file is ready for download:</p>
-        <p>It contains clustered startups along with cluster statistics</p>
-        <a class="button" href="Clustered.xlsx" download>Download Output File</a>
-    </div>
+    <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="//code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+    <script>
+        $(function() {
+            // Loop through each table container
+            $(".table-container").each(function() {
+                var container = $(this);
+                var content = container.find(".table-content");
+                var wrapper = container.find(".table-wrapper");
+                var sliderContainer = $("<div>").addClass("slider-container").appendTo(container);
+                var slider = $("<div>").appendTo(sliderContainer).slider({
+                    orientation: "vertical",
+                    range: "min",
+                    min: 0,
+                    // Set the maximum value to the difference between the table height and the wrapper height
+                    max: wrapper.height() - container.height(),
+                    value: 0,
+                    slide: function(event, ui) {
+                        wrapper.css("top", -ui.value);
+                    }
+               });
+            });
+});
+
+</script>
 </body>
 </html>
 

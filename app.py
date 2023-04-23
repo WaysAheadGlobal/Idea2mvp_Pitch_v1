@@ -10,12 +10,16 @@ from nltk.corpus import stopwords
 import gensim.downloader as api
 from sklearn.cluster import KMeans
 import numpy as np
+import pyodbc
+import uuid
 
 stop_words = set(stopwords.words('english'))
 
 
 # Define a list of keywords to search for
 keywords = ['technology', 'innovation', 'empower', 'women', 'research', 'robotics', 'drone', 'agri', 'deep tech','mechanics', 'DPIIT', 'IIT', 'IIM', 'alumni', 'ministry', 'global', 'growth', 'seed fund', 'make in India', 'carbon', 'compliance', 'data science', 'data analytics', 'data', 'indian institute of technology', 'indian institute of management', 'skill', 'digital', 'technologies', 'million', 'billion', 'customer experience', 'organic', 'ev', 'energy', 'green energy', 'manufacturing', 'electrical vehicle']
+
+model = api.load("word2vec-google-news-300")
 
 
 # Create a Flask app
@@ -31,8 +35,8 @@ def home():
 def submit():
     # Get the folder path containing the PDF files from the form data
     folder_path = request.form['folder_path']
-    label = request.form['label']
-    label=label.lower()
+    label_string = request.form['label'] # Get label string from input field
+    labels = [label.strip().lower() for label in label_string.split(',')]
     key=request.form['key']
     # Set endpoint and key of your Form Recognizer resource
     endpoint = "https://startuprecognizer.cognitiveservices.azure.com"
@@ -134,15 +138,16 @@ def submit():
     df = df.sort_values(by='score', ascending=False)
     df['rank'] = df['score'].rank(ascending=False, method='dense').astype(int)
 
-    # Save the workbook
-    df.to_excel('ranked_output.xlsx',index=False)
+
+    table_html = df[['Filename', 'score', 'rank']].to_html(index=False)
 
     #User filtering startups:
-    filtered_startups = df[df['Entities'].apply(lambda x: label in x.lower())]
-    filtered_startups.to_excel('filtered_startups.xlsx', index=False)
+    filtered_startups = df[df['Entities'].apply(lambda x: any(label in x.lower() for label in labels))]
+    filtered_startups = filtered_startups.assign(labels=','.join(labels))
+    filtered_startups_table = filtered_startups[['Filename', 'labels']].to_html(index=False)
     
     #Clustered file
-    model = api.load("word2vec-google-news-300")
+    
     labels_embeddings = []
     for labels in df['Entities']:
         labels_embedding = np.zeros(300)  # Initialize empty embedding vector
@@ -154,17 +159,54 @@ def submit():
     # Cluster the startups based on the similarity of their labels using K-means
     kmeans = KMeans(n_clusters=2, random_state=0).fit(labels_embeddings)
     df['Cluster'] = kmeans.labels_
-    df.to_excel("Clustered.xlsx", index=False)
+    clustered_startups_table = df[['Filename', 'Cluster']].to_html(index=False)
     cluster_stats = df.groupby('Cluster').agg({'Filename': 'count', 'Entities': lambda x: list(x)})
-    cluster_stats.rename(columns={'Filename': 'Count', 'Entities': 'Startups'}, inplace=True)
+    cluster_stats.rename(columns={'Filename': 'Count', 'Entities': 'Tags'}, inplace=True)
+    
+    # Add the 'Cluster' column to the cluster_stats DataFrame
+    cluster_stats.reset_index(inplace=True)
+    cluster_stats = cluster_stats[['Cluster', 'Count', 'Tags']]
+    
+    cluster_stats_table=cluster_stats[['Cluster','Count','Tags']].to_html(index=False)
 
-    # Write results to Excel sheet
-    writer = pd.ExcelWriter('CLustered.xlsx')
-    df.to_excel(writer, sheet_name='Startups', index=False)
-    cluster_stats.to_excel(writer, sheet_name='Cluster Statistics')
-    writer.save()
+    # Establish connection to the database
+    conn = pyodbc.connect('DRIVER={SQL Server};SERVER=103.145.51.250;DATABASE=Idea2mvp_AI_ML_DB;UID=Idea2mvpdbusr;PWD=AIMLDBusr8520!')
+
+    # Generate a unique reference number for this submission
+    submission_ref = str(uuid.uuid4())
+
+    # Add the reference number to each row in the DataFrame
+    df['SubmissionRef'] = submission_ref
+    filtered_startups['SubmissionRef'] = submission_ref
+    cluster_stats['SubmissionRef'] = submission_ref
+
+    # Create tables in the database to store the data
+    cursor = conn.cursor()
+
+    # Insert data into the other tables with the submission reference included
+    for i, row in df.iterrows():
+        cursor.execute("INSERT INTO ranked_startups (Filename, Score, Rank, SubmissionRef) VALUES (?, ?, ?, ?)", (row['Filename'], row['score'], row['rank'], submission_ref))
+    print("Inserted in Table 1")
+    for i, row in filtered_startups.iterrows():
+        cursor.execute("INSERT INTO filtered_startups (Filename, Score, Rank, SubmissionRef) VALUES (?, ?, ?, ?)", (row['Filename'], row['score'], row['rank'], submission_ref))
+    print("Inserted in Table 2")
+    for i, row in df.iterrows():
+        cursor.execute("INSERT INTO clustered_startups (Filename, Score, Rank, Cluster, SubmissionRef) VALUES (?, ?, ?, ?, ?)", (row['Filename'], row['score'], row['rank'], row['Cluster'], submission_ref))
+    print("Inserted in Table 3")
+    for i, row in cluster_stats.iterrows():
+        cursor.execute("INSERT INTO cluster_stats (Cluster, Count, Startups, SubmissionRef) VALUES (?, ?, ?, ?)", (row['Cluster'], row['Count'], ', '.join(row['Tags']), submission_ref))
+
+    print("Inserted in all tables")
+    conn.commit()
+
+    # Close the connection
+   
+    conn.close()
+    print("Saved in Database")
+
+
     # Return the output file as a download link
-    return render_template('output.html')
+    return render_template('output.html',table_html=table_html,filtered_startups_table=filtered_startups_table, clustered_startups_table= clustered_startups_table)
 
 # Run the app
 if __name__ == '__main__':
