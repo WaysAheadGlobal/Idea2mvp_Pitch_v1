@@ -18,7 +18,7 @@
         }
 
         .table-column {
-            display: flex;
+            display: block;
             flex-direction: row;
             justify-content: space-between;
             align-items: stretch;
@@ -92,10 +92,15 @@
             width: 20px;
         }
         
-        #logo {
-            display: block;
-            margin: auto;
-            width:20%;
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            }
+        .logo {
+            display: inline-block;
+            vertical-align: middle;
+            width: 15%;
             }
         /* Style each table separately */
         .table1 table {
@@ -132,7 +137,11 @@
     </style>
 </head>
 <body>
-        <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" id="logo">
+        <div class="container">
+            <img src="{{ url_for('static', filename='Skio.png') }}" alt="Logo" class="logo" id="logo1">
+            <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" class="logo" id="logo2">
+        </div>    
+      
         <div class="table-row">
             <div class="table-container table1">
                 <center><h3>Ranked Startups</h3></center>
