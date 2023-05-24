@@ -2,6 +2,32 @@
 <html>
   <head>
     <title>PDF Label Extraction</title>
+    <script>
+      function showPopup(buttonId) {
+          var fullName = prompt("Enter your full name:");
+          var email = prompt("Enter your email address:");
+          var incubatorName = prompt("Enter Incubator name:");
+          var incubatorLocation = prompt("Enter Incubator location:");
+          var mobileNo = prompt("Enter your MobileNo:");
+  
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", "/" + buttonId, true);
+          xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+          xhr.onreadystatechange = function() {
+              if (xhr.readyState === 4 && xhr.status === 200) {
+                  alert(xhr.responseText);
+              }
+          };
+          var data = "fullName=" + fullName +
+                    "&email=" + email +
+                    "&incubatorName=" + incubatorName +
+                    "&incubatorLocation=" + incubatorLocation +
+                    "&mobileNo=" + mobileNo;
+          xhr.send(data);
+        
+      }
+  </script>
+  
     <style>
       body {
         margin: 0;
@@ -105,6 +131,17 @@
       input[type="submit"]:hover {
         background-color: red;
       }
+
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 50%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+      }
       
     </style>
   </head>
@@ -112,6 +149,11 @@
     <div id="content-container">
       <div id="content-left">
           <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" id="logo">
+          <br><br>
+        <form action="{{ url_for('request_license') }}" method="post">
+          <input type="submit" value="Request For License Key" onclick="showPopup('request-license'); return false;">
+        </form> &ensp; &ensp;
+        <button id="verify-otp-button" onclick="showOTPVerification()">Verify OTP</button>
         <form method="post" action="/submit">
           <label for="folder_path">PDF Folder Path:</label>
           <br>
@@ -123,10 +165,10 @@
           <br>
           <label for="key">Key:</label>
           <br>
-          <input type="text" id="key" name="key" placeholder="Please enter your unique key">
+          <input type="text" id="key" name="key" placeholder="Please enter your unique key" required>
           <br>
           <input type="submit" value="Submit">
-          <br><br>
+          &ensp;&ensp;&ensp;
         </form>
       </div>
       <div id="content-right">
@@ -140,5 +182,29 @@
         <img src="{{ url_for('static', filename='Algorithm.png') }}" id="Algorithm">
       </div>
     </div>
+    <div class="overlay" id="otp-overlay">
+      <div class="popup">
+        <h2>OTP Verification</h2>
+        <form action="{{ url_for('verify_otp') }}" method="post">
+          <label for="otp">Enter the OTP:</label>
+          <br>
+          <input type="text" id="otp" name="otp" placeholder="OTP">
+          <br><br>
+          <input type="submit" value="Verify OTP">
+        </form>
+      </div>
+    </div>
+    
+    <script>
+      // Display the OTP verification popup
+      function showOTPVerification() {
+        document.getElementById("otp-overlay").style.display = "block";
+      }
+  
+      // Hide the OTP verification popup
+      function hideOTPVerification() {
+        document.getElementById("otp-overlay").style.display = "none";
+      }
+    </script>
   </body>
 </html>
