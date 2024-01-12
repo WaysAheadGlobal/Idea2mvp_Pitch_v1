@@ -127,60 +127,6 @@ def generate_license_key():
     
     return jsonify({'license_key': license_key})
 
-@app.route('/request-license', methods=['POST'])
-def request_license():
-    Name = request.form['fullName']
-    Email = request.form['email']
-    incubator_name = request.form['incubatorName']
-    Location = request.form['incubatorLocation']
-    MobileNo=request.form['mobileNo']
-    license_key = str(uuid.uuid4())  # Generate a unique license key
-    is_key_used = 'No'
-    creation_date = datetime.datetime.now()
-    
-    # Create a cursor object to execute SQL queries
-    cursor = conn.cursor()
-
-    # Define the SQL query to insert the form data into a table
-    sql_query = "INSERT INTO tbgl_Customer (Name, Email, Incubator_Accelerator_Name,Location, MobileNo,LicenseKey,CreatedDate) VALUES (?, ?, ?, ?, ?,?,?)"
-
-    # Execute the SQL query with the form data as parameters
-    cursor.execute(sql_query, (Name, Email, incubator_name, Location, MobileNo,license_key,creation_date))
-
-    # Commit the changes to the database
-    conn.commit()
-
-    # Generate OTP
-    otp = random.randint(100000, 999999)
-
-    # Send email with OTP
-    sender_email = "dev@waysaheadglobal.com"
-    password = "Singapore@2022"
-    receiver_email = Email
-    subject = "OTP Verification"
-    message = f"Your OTP: {otp}"
-
-    msg = MIMEText(message)
-    msg['Subject'] = subject
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-
-    try:
-        with smtplib.SMTP("smtp.office365.com", 587) as server:
-            server.starttls()
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, msg.as_string())
-            print("Email sent successfully")
-    except smtplib.SMTPException as e:
-        print("Error sending email:", str(e))
-
-    # Store the OTP and license key in the session for validation and email sending
-    session['otp'] = otp
-    session['license_key'] = license_key
-    session['email']= Email
-
-    # Return a response to the user
-    return redirect(url_for('verify_otp'))
 
 # Function to store files in blob storage
 def store_files_in_blob(files):
