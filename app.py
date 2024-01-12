@@ -149,46 +149,38 @@ def verify_otp():
         # Return a response to the user indicating invalid OTP
         return ('OTP Mismatch')
 
+
 @app.route('/submit', methods=['POST'])
 def submit():
-    # Get the folder path containing the PDF files from the form data
-    folder_path = request.form['folder_path']
-    label_string = request.form['label'] # Get label string from input field
+    label_string = request.form['label']
     labels = [label.strip().lower() for label in label_string.split(',')]
-    license_key1=request.form['key']
+    license_key1 = request.form['key']
 
+    data = []
+    for uploaded_file in request.files.getlist('pdf_files'):
+        # Generate a unique filename to avoid overwriting
+        filename = str(uuid.uuid4()) + '.pdf'
 
-    data=[]
-    # Iterate over all PDF files in the folder
-    for filename in os.listdir(folder_path):
-        if filename.endswith('.pdf'):
-            # Get the full file path
-            file_path = os.path.join(folder_path, filename)
-            # Create a BlobClient instance for the PDF file
-            blob_client = blob_service_client.get_blob_client(container=container_name, blob=filename)
+        # Create a BlobClient instance for the PDF file
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=filename)
 
-             
-            with open(file_path, 'rb') as file:
-                blob_client.upload_blob(file, overwrite=True)
-                print(f"File '{filename}' stored in the blob storage.")
-                
-            with open(file_path, 'rb') as file:
-                pdf_contents = file.read()
-            
+        with uploaded_file.stream as file:
+            # Upload the file to Azure Blob Storage
+            blob_client.upload_blob(file, overwrite=True)
+            print(f"File '{filename}' stored in the blob storage.")
+
+            # Reset file position for further reading
+            file.seek(0)
+
+            # Read the PDF contents
+            pdf_contents = file.read()
 
             # Analyze the PDF using the Form Recognizer API
             poller = form_recognizer_client.begin_recognize_content(pdf_contents, content_type='application/pdf')
 
-            pdf_text = extract_text(file_path)
-            entities = []
-            for keyword in keywords:
-                if keyword in pdf_text.lower():
-                    entities.append(keyword)
-
-            # Analyze the PDF using the Form Recognizer API
-            with open(file_path, 'rb') as file:
-                pdf_contents = file.read()
-            poller = form_recognizer_client.begin_recognize_content(pdf_contents, content_type='application/pdf')
+            # Extract entities from the PDF text based on predefined keywords
+            pdf_text = extract_text(file)
+            entities = [keyword for keyword in keywords if keyword in pdf_text.lower()]
 
             # Get the result of the analysis
             result = poller.result()
@@ -202,6 +194,7 @@ def submit():
                     # Join the remaining words and add to entities list
                     entity = ' '.join(words)
                     entities.append(entity)
+
             data.append({'Filename': filename, 'Entities': str(entities)})
 
     df=pd.DataFrame(data)
@@ -280,7 +273,7 @@ def submit():
         labels_embeddings.append(labels_embedding)
 
     # Cluster the startups based on the similarity of their labels using K-means
-    kmeans = KMeans(n_clusters=2, random_state=0).fit(labels_embeddings)
+    kmeans = KMeans(n_clusters=1, random_state=0).fit(labels_embeddings)
     df['Cluster'] = kmeans.labels_
     clustered_startups_table = df[['Filename', 'Cluster']].to_html(index=False)
     cluster_stats = df.groupby('Cluster').agg({'Filename': 'count', 'Entities': lambda x: list(x)})
@@ -326,11 +319,8 @@ def submit():
     conn.close()
     print("Saved in Database")
 
-
-    # Return the output file as a download link
     return render_template('output.html',table_html=table_html,filtered_startups_table=filtered_startups_table, clustered_startups_table= clustered_startups_table)
 
 # Run the app
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    app.run(debug=False)
