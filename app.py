@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 import pyodbc
 
 app = Flask(__name__)
@@ -77,7 +77,6 @@ def get_customers():
     except Exception as e:
         return jsonify({'error': str(e)})
 
-# Define a route for the home page
 @app.route('/')
 def index():
     return render_template('index.html')
