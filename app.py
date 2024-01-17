@@ -9,7 +9,7 @@ connection_string = (
     "UID=NorthwndDB;"
     "PWD=NorthwndDB123;"
 )
-@app.route('/api/TelcoDim_Products', methods=['GET'])
+@app.route('/api/TelcomProducts', methods=['GET'])
 def get_customers():
     try:
         connection = pyodbc.connect(connection_string)
@@ -26,7 +26,7 @@ def get_customers():
     except Exception as e:
         return jsonify({'error': str(e)})
 
-@app.route('/api/TelcoDim_Categories', methods=['GET'])
+@app.route('/api/TelcomCategories', methods=['GET'])
 def get_customers1():
     try:
         connection = pyodbc.connect(connection_string)
@@ -43,7 +43,7 @@ def get_customers1():
     except Exception as e:
         return jsonify({'error': str(e)})
      
-@app.route('/api/tbgl_Products', methods=['GET'])
+@app.route('/api/Products', methods=['GET'])
 def get_customers2():
     try:
         connection = pyodbc.connect(connection_string)
@@ -60,12 +60,12 @@ def get_customers2():
     except Exception as e:
         return jsonify({'error': str(e)})
 
-@app.route('/api/tbgl_Categories', methods=['GET']) 
+@app.route('/api/Categories', methods=['GET']) 
 def get_customers3():
     try:
         connection = pyodbc.connect(connection_string)
         cursor = connection.cursor()
-        cursor.execute("SELECT * from tbglCategories")
+        cursor.execute("SELECT Categoryid,Categoryname,description from tbglCategories")
         columns = [column[0] for column in cursor.description]
         customers = []
         for row in cursor.fetchall():
