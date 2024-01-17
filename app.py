@@ -52,7 +52,46 @@ app.secret_key = 'Skio_Idea'
 def index():
     return render_template('index.html')
 
-
+connection_string1= (
+    "Driver={ODBC Driver 17 for SQL Server};"
+    "Server=103.145.51.250;"
+    "Database=NORTHWND;"
+    "UID=NorthwndDB;"
+    "PWD=NorthwndDB123;"
+)
+@app.route('/api/telco_products', methods=['GET'])
+def get_customers():
+    try:
+        connection = pyodbc.connect(connection_string1)
+        cursor = connection.cursor()
+        cursor.execute("SELECT * from TelcoDim_Products")
+        columns = [column[0] for column in cursor.description]
+        customers = []
+        for row in cursor.fetchall():
+            customer = dict(zip(columns, row))
+            customers.append(customer)
+        cursor.close()
+        connection.close()
+        return jsonify(customers)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+     
+@app.route('/api/telco_categories', methods=['GET'])
+def get_customers():
+    try:
+        connection = pyodbc.connect(connection_string)
+        cursor = connection.cursor()
+        cursor.execute("SELECT * from TelcoDim_Categories")
+        columns = [column[0] for column in cursor.description]
+        customers = []
+        for row in cursor.fetchall():
+            customer = dict(zip(columns, row))
+            customers.append(customer)
+        cursor.close()
+        connection.close()
+        return jsonify(customers)
+    except Exception as e:
+        return jsonify({'error': str(e)}) 
 
 # Secret key for encoding and decoding JWT tokens
 SECRET_KEY = "06e14c7f-6278-4734-a659-f846a5cdccda"
