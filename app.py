@@ -27,7 +27,7 @@ def get_customers():
         return jsonify({'error': str(e)})
 
 @app.route('/api/TelcoDim_Categories', methods=['GET'])
-def get_customers():
+def get_customers1():
     try:
         connection = pyodbc.connect(connection_string)
         cursor = connection.cursor()
@@ -44,7 +44,7 @@ def get_customers():
         return jsonify({'error': str(e)})
      
 @app.route('/api/tbgl_Products', methods=['GET'])
-def get_customers():
+def get_customers2():
     try:
         connection = pyodbc.connect(connection_string)
         cursor = connection.cursor()
@@ -61,7 +61,7 @@ def get_customers():
         return jsonify({'error': str(e)})
 
 @app.route('/api/tbgl_Categories', methods=['GET']) 
-def get_customers():
+def get_customers3():
     try:
         connection = pyodbc.connect(connection_string)
         cursor = connection.cursor()
